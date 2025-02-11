@@ -1,7 +1,7 @@
 import tkinter as tk
 from time import sleep
 from screentracker import ScreenTracker
-from notifier import NotificationType, Notification
+from notification import NotificationType, Notification
 from detectiontype import DetectionType, DetectionPreference
 
 class Application:
