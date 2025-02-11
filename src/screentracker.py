@@ -102,6 +102,7 @@ class ScreenTracker(threading.Thread):
             self.take_screenshot(monitor_path, formatted_region)
             if(self.detect_change(ref_path, monitor_path)):
                 self.stop(change_detected=True)
+            os.remove(monitor_path)
   
     def detect_change(self, ref_path: str, monitor_path: str):
         match self.detect_pref.type:
