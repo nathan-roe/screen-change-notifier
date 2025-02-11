@@ -15,7 +15,7 @@ else
 	echo "Camera shutter path already moved or doesn't exist"
 fi
 
-exec_path=$(realpath '../dist/screen-notifier/screen-notifier')
+exec_path=$(realpath './build/dist/main')
 icon_path=$(realpath '../assets/icon.svg')
 desktop_content="
 [Desktop Entry]
