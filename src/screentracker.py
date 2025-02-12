@@ -12,12 +12,16 @@ from wordscanner import WordScanner
 from detectiontype import DetectionPreference, DetectionType
 
 class ScreenTracker(threading.Thread):
-    def __init__(self, root: tk.Tk, freq: float, detect_pref: DetectionPreference, callback):
+    def __init__(self, root: tk.Tk, freq: float, detect_pref: DetectionPreference, on_start, on_complete):
         super().__init__()
         self.detect_pref = detect_pref
         self.signal = True
-        self.freq = freq
-        self.callback = callback
+        self.freq = 0 if freq <= 2 else freq \
+            if detect_pref.type == DetectionType.DISPLAY \
+            else 0 if freq <= 5 else freq
+            
+        self.on_start = on_start
+        self.on_complete = on_complete
         self.tmp_dir = f'{os.path.dirname(os.path.realpath(__file__))}/tmp'
         self.tk_root = root
         self.create_tmp_dir()
@@ -68,8 +72,9 @@ class ScreenTracker(threading.Thread):
 
             if drawing:
                 rect = pygame.Rect(start_pos, (end_pos[0] - start_pos[0], end_pos[1] - start_pos[1]))
-                pygame.draw.rect(screen, (0, 0, 0), rect, 2)
+                pygame.draw.rect(screen, "#0bae4a", rect, 2)
             pygame.display.flip()
+        os.remove(file_name)
         pygame.quit()
         return (0, 0)
 
@@ -92,17 +97,23 @@ class ScreenTracker(threading.Thread):
             end_pos[1] - start_pos[1]
         )
         self.take_screenshot(ref_path, formatted_region)
+        self.on_start()
         self.check_screen_change(ref_path, formatted_region)
 
     def check_screen_change(self, ref_path: str, formatted_region: tuple[int, int, int, int]):
         self.signal = True
         while self.signal:
             time.sleep(self.freq)
+            start_time = time.perf_counter()
             monitor_path = f'{uuid.uuid4()}.png'
             self.take_screenshot(monitor_path, formatted_region)
-            if(self.detect_change(ref_path, monitor_path)):
-                self.stop(change_detected=True)
+            detected_change = self.detect_change(ref_path, monitor_path)
             os.remove(monitor_path)
+            if(detected_change):
+                os.remove(ref_path)
+                self.stop(change_detected=True)
+                end_time = time.perf_counter()
+                print(end_time - start_time)
   
     def detect_change(self, ref_path: str, monitor_path: str):
         match self.detect_pref.type:
@@ -114,7 +125,7 @@ class ScreenTracker(threading.Thread):
     def stop(self, change_detected = False):
         self.clear_monitor_files()
         self.signal = False
-        self.callback(change_detected)
+        self.on_complete(change_detected)
 
     def check_image_equality(self, img_path1: str, img_path2: str):
         img1 = cv2.imread(img_path1)

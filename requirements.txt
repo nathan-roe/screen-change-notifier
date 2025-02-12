@@ -16,3 +16,4 @@ PyScreeze==1.0.1
 pytesseract==0.3.13
 python3-xlib==0.15
 pytweening==1.2.0
+ttkthemes==3.2.2
