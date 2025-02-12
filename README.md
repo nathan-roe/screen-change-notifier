@@ -1,5 +1,7 @@
 ## Screen Change Notifier
 
+https://github.com/user-attachments/assets/eb92589b-ab9a-4962-b856-2c44a80acba4
+
 ### Purpose
 - This is a Linux application used for executing commands when a selected portion of a screen display changes. Users have the ability to analyze a page for specific text changes, or run logic when the display is modified within a specified region.
 
